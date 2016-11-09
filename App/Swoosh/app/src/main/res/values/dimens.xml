@@ -10,4 +10,6 @@
     <dimen name="mainMission_description">14sp</dimen>
     <dimen name="mainStart_mission">25sp</dimen>
     <dimen name="bigRunButton">100dp</dimen>
+    <dimen name="mainMission_topmargin">1dp</dimen>
+    <dimen name="mainMission_titlebottommargin">10dp</dimen>
 </resources>
