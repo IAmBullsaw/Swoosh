@@ -3,6 +3,9 @@ package com.oskarjansson.swoosh;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -69,17 +72,34 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        Fragment fragment = null;
+        Class fragmentClass = MainFragment.class;
         int id = item.getItemId();
-
-        if (id == R.id.nav_profile) {
-            // Handle the camera action
+        if (id == R.id.nav_run) {
+            Log.d("Navigating","run");
+            // Do nothing
+            // It is already set as default
+        } else if (id == R.id.nav_profile) {
+            Log.d("Navigating","profile");
+            fragmentClass = ProfileFragment.class;
         } else if (id == R.id.nav_history) {
-
+            Log.d("Navigating","history");
         } else if (id == R.id.nav_settings) {
-
+            Log.d("Navigating","settings");
         } else if (id == R.id.nav_share) {
-
+            Log.d("Navigating","share");
         }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        setTitle(item.getTitle());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -12,4 +12,5 @@
     <dimen name="bigRunButton">100dp</dimen>
     <dimen name="mainMission_topmargin">1dp</dimen>
     <dimen name="mainMission_titlebottommargin">10dp</dimen>
+    <dimen name="vertical_header_push">20dp</dimen>
 </resources>
