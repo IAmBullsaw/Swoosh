@@ -15,9 +15,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Fragment fragment;
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,19 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        this.fragment = new MainFragment();
+        this.fragmentManager = getSupportFragmentManager();
+        this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+
+
+
+        loadSpinner();
+
+    }
+
+    private void loadSpinner() {
+
     }
 
     @Override
@@ -72,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        Fragment fragment = null;
+        this.fragment = null;
         Class fragmentClass = MainFragment.class;
         int id = item.getItemId();
         if (id == R.id.nav_run) {
@@ -91,15 +108,15 @@ public class MainActivity extends AppCompatActivity
         }
 
         try {
-            fragment = (Fragment) fragmentClass.newInstance();
+            this.fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
-        setTitle(item.getTitle());
+        this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        // Uncomment this if you'd like.
+        //setTitle(item.getTitle());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -54,15 +54,16 @@
             android:layout_marginTop="@dimen/mainMission_topmargin"
             >
 
-            <TextView
-                android:id="@+id/mainMission_title"
+            <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:entries="@array/mission_array"
+                android:id="@+id/mainSpinnerChoice"
                 android:textSize="@dimen/mainMission_title"
-                android:textColor="@color/mainMission_title"
                 android:layout_marginBottom="@dimen/mainMission_titlebottommargin"
-                android:text="@string/mainmission_title"/>
+                android:spinnerMode="dialog" />
+
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -82,10 +83,6 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/mainSpinnerChoice"/>
 
             <Button
                 android:layout_width="wrap_content"
@@ -93,6 +90,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/mainStart_mission"
                 android:text="@string/mainStart_mission"
+                android:id="@+id/main_Button_Startmission"
                 style="@style/Widget.AppCompat.Button.Colored" />
 
         </LinearLayout>
