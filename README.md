@@ -42,6 +42,11 @@ The delta version should be able to:
 * Be able to have friends.
 * Show friends/local/country/world brackets.
 
+## Epsilon version
+The epsilon version should be able to:
+* User can now pick a team.
+* Team brackets now exists.
+
 ## Where I Assume I'll end up when course finishes
 Either Beta or Gamma version. This is due to other courses, me being new to Android, and that time is limited.
 I have my hopes up.
