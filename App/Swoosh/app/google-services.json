@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "23617618434",
+    "firebase_url": "https://swoosh-ed954.firebaseio.com",
+    "project_id": "swoosh-ed954",
+    "storage_bucket": "swoosh-ed954.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:23617618434:android:aa9320205df0d540",
+        "android_client_info": {
+          "package_name": "com.oskarjansson.swoosh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "23617618434-fsvbkdikd4hfr18717dpror995m4idrt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oskarjansson.swoosh",
+            "certificate_hash": "2C96B2EC0626A6E491DC17A9A7C053E45F0C5CD4"
+          }
+        },
+        {
+          "client_id": "23617618434-4ht28l5a5pd84uem730mfs7gjp68oupu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnKvsj43-yARun0rx0ZrZ8CPX70B0qa3A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "23617618434-4ht28l5a5pd84uem730mfs7gjp68oupu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

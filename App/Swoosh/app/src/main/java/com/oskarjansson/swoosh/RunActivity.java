@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -11,6 +12,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,6 +29,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class RunActivity extends AppCompatActivity implements
@@ -38,11 +47,16 @@ public class RunActivity extends AppCompatActivity implements
     private Location lastLocation;
     private int MY_PERMISSION_REQUEST_FINE_LOCATION;
     private GoogleMap googleMap;
+    private List<Location> locations;
+    private String userName = "Pirx";
+    private DatabaseReference userRuns;
+    private boolean hasPushedRun = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        locations = new ArrayList<Location>();
+        locations.add(new Location("Test") );
         setContentView(R.layout.activity_run);
 
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -69,6 +83,28 @@ public class RunActivity extends AppCompatActivity implements
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
+
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        userRuns = database.getReference("user/" + userName + "/runs");
+
+
+
+
+        ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("Run", "Pushed stop!");
+                if (!hasPushedRun) {
+                    userRuns.push().setValue(locations);
+                    Log.d("Run", "Pushed locations to firebase!");
+                    hasPushedRun = true;
+                    finish();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -81,9 +117,10 @@ public class RunActivity extends AppCompatActivity implements
             lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
             if (lastLocation != null) {
+                locations.add(lastLocation);
                 googleMap.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 20));
+                                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 18));
                 googleMap.addMarker(new MarkerOptions()
                         .position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
             }
@@ -120,12 +157,13 @@ public class RunActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         Toast.makeText(this,"WE CHANGED PLACES :D",Toast.LENGTH_SHORT).show();
+        locations.add(location);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         {
             googleMap.moveCamera(
                     CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(location.getLatitude(), location.getLongitude()) , 20));
+                            new LatLng(location.getLatitude(), location.getLongitude()) , 18));
             googleMap.addMarker(new MarkerOptions()
                     .position(new LatLng(location.getLatitude(), location.getLongitude())));
         }
