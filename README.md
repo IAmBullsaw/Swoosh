@@ -3,9 +3,11 @@
 ## Introduction
 This app is for the course TDP028 at Linköping University.
 The main goal of the course is NOT the app itself but the fluff around the making of an app, such as:
-* A/B-testing
-* Monetizing
-* I am not really sure at this point...
+* A/B-testing.
+* Monetizing.
+* Best practices in app-design.
+* Gathering of statistical data concerning the use of my app.
+* Making beneficial use of this statistical data.
 
 ## About the app
 I am planning to make a simple game of the usual jog.
