@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -29,6 +31,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -48,7 +52,7 @@ public class RunActivity extends AppCompatActivity implements
     private int MY_PERMISSION_REQUEST_FINE_LOCATION;
     private GoogleMap googleMap;
     private List<Location> locations;
-    private String userName = "Pirx";
+    private String userName;
     private DatabaseReference userRuns;
     private boolean hasPushedRun = false;
 
@@ -84,11 +88,12 @@ public class RunActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
 
-
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            userName = user.getUid();
+        }
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         userRuns = database.getReference("user/" + userName + "/runs");
-
-
 
 
         ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);

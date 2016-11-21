@@ -1,6 +1,8 @@
 package com.oskarjansson.swoosh;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -17,14 +19,29 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Fragment fragment;
     private FragmentManager fragmentManager;
+    private FirebaseAuth firebaseAuth;
+    private int RC_SIGN_IN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        if ( firebaseAuth.getCurrentUser() == null) {
+            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(),RC_SIGN_IN);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -42,8 +59,6 @@ public class MainActivity extends AppCompatActivity
         this.fragment = new MainFragment();
         this.fragmentManager = getSupportFragmentManager();
         this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
-
-
 
         loadSpinner();
 
@@ -63,7 +78,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
+    // TODO: FIX KEBAB MENU or ERASE
+/*    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -83,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -101,8 +117,10 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = ProfileFragment.class;
         } else if (id == R.id.nav_history) {
             Log.d("Navigating","history");
+            fragmentClass = HistoryFragment.class;
         } else if (id == R.id.nav_settings) {
             Log.d("Navigating","settings");
+            fragmentClass = SettingsFragment.class;
         } else if (id == R.id.nav_share) {
             Log.d("Navigating","share");
         }
@@ -121,5 +139,18 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d("Swoosh","Logged Out");
+                    }
+                });
+        super.onDestroy();
     }
 }
