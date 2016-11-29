@@ -52,6 +52,7 @@ public class RunActivity extends AppCompatActivity implements
     private int MY_PERMISSION_REQUEST_FINE_LOCATION;
     private GoogleMap googleMap;
     private List<Location> locations;
+    private List<RunPoint> runPoints;
     private String userName;
     private DatabaseReference userRuns;
     private boolean hasPushedRun = false;
@@ -60,7 +61,7 @@ public class RunActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         locations = new ArrayList<Location>();
-        locations.add(new Location("Test") );
+        runPoints = new ArrayList<RunPoint>();
         setContentView(R.layout.activity_run);
 
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -93,17 +94,19 @@ public class RunActivity extends AppCompatActivity implements
             userName = user.getUid();
         }
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        userRuns = database.getReference("user/" + userName + "/runs");
-
+        userRuns = database.getReference("user/" + userName + "/workouts");
 
         ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("Run", "Pushed stop!");
+                Log.d("Run", "Pushed stopButton!");
                 if (!hasPushedRun) {
-                    userRuns.push().setValue(locations);
-                    Log.d("Run", "Pushed locations to firebase!");
+                    DatabaseReference run = userRuns.push();
+                    RunContainer data = new RunContainer(run.getKey(),runPoints);
+                    run.setValue(data);
+                    Log.d("Run", "Debug: " + data.getDate().toString());
+                    Log.d("Run", "Pushed runPoints to firebase!");
                     hasPushedRun = true;
                     finish();
                 }
@@ -122,7 +125,10 @@ public class RunActivity extends AppCompatActivity implements
             lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
             if (lastLocation != null) {
-                locations.add(lastLocation);
+
+                runPoints.add(new RunPoint(lastLocation));
+
+                // Make Something Else!
                 googleMap.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 18));
@@ -162,7 +168,8 @@ public class RunActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         Toast.makeText(this,"WE CHANGED PLACES :D",Toast.LENGTH_SHORT).show();
-        locations.add(location);
+
+        runPoints.add(new RunPoint(location));
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         {
@@ -181,7 +188,7 @@ public class RunActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.d("Run","Map is ready :D");
+        Log.d("RunActivity","onMapReady - Setting mock location 0,0");
         this.googleMap = googleMap;
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 getLatLng(), 1));
