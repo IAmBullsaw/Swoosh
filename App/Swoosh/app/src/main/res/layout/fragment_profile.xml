@@ -5,9 +5,60 @@
     android:layout_height="match_parent"
     tools:context="com.oskarjansson.swoosh.ProfileFragment">
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/profile_title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/colorRunner"
+                android:layout_centerHorizontal="true"
+                android:textSize="50sp"
+                android:text="@string/mainTitle" />
+
+            <TextView
+                android:id="@+id/profile_level"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/colorLevel"
+                android:textSize="50sp"
+                android:text="30"
+                android:layout_toLeftOf="@id/profile_title"/>
+
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:layout_weight="7">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorRunner"
+                android:textSize="@dimen/profile_Achievements"
+                android:layout_gravity="center"
+                android:text="@string/profile_Achievements"/>
+
+            <GridView
+                android:id="@+id/profile_achievements_grid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
 
 </FrameLayout>

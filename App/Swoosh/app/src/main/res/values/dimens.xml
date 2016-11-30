@@ -13,4 +13,6 @@
     <dimen name="mainMission_topmargin">1dp</dimen>
     <dimen name="mainMission_titlebottommargin">10dp</dimen>
     <dimen name="vertical_header_push">20dp</dimen>
+    <dimen name="profile_Achievements">20sp</dimen>
+    <dimen name="profile_Achievements_grid_box_margin">10dp</dimen>
 </resources>

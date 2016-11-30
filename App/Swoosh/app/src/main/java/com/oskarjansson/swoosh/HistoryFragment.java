@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,6 +21,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 
 
 public class HistoryFragment extends Fragment {
@@ -40,7 +43,7 @@ public class HistoryFragment extends Fragment {
             throw new RuntimeException("History Fragment: No user.getUid(). What gives? This shan't happen!");
         }
 
-        final ListView listView = (ListView) this.getView().findViewById(R.id.history_ListView);
+        final RunContainerAdapter arrayAdapter = new RunContainerAdapter(this.getContext(),new ArrayList<RunContainer>());
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userRuns = database.getReference("user/" + userName + "/workouts");
@@ -49,9 +52,8 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("HistoryFragment","onChildAdded " + dataSnapshot.getKey());
-                RunContainer run = dataSnapshot.getValue(RunContainer.class);
-
-                Log.d("HistoryFragment","");
+                RunContainer runContainer = dataSnapshot.getValue(RunContainer.class);
+                arrayAdapter.add(runContainer);
             }
 
             @Override
@@ -81,6 +83,12 @@ public class HistoryFragment extends Fragment {
         userRuns.addChildEventListener(childEventListener);
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_history, container, false);
+
+
+        View view = inflater.inflate(R.layout.fragment_history, container, false);
+        ListView listView = (ListView) view.findViewById(R.id.history_ListView);
+        listView.setAdapter(arrayAdapter);
+
+        return view;
     }
 }
