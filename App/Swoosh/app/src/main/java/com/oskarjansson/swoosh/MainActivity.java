@@ -23,6 +23,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 
@@ -41,6 +43,16 @@ public class MainActivity extends AppCompatActivity
         if ( firebaseAuth.getCurrentUser() == null) {
             startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(),RC_SIGN_IN);
         }
+
+
+        // Get level data and achievement data
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference levelReference = db.getReference("levelrequirements");
+        DatabaseReference achievementReference = db.getReference("achievements");
+
+        // TODO: Learn how to not use childlisteners
+
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

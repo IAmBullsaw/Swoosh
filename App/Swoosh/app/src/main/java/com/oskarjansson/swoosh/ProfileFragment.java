@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
 
         final AchievementAdapter achievementAdapter = new AchievementAdapter(this.getContext(),new ArrayList<AchievementContainer>());
 
-        // TODO: Push some achievements to be able to pull them to be able to show them :D
+        // TODO: Ppull them to be able to show them :D
 
         // Get User Progress
         FirebaseDatabase database = FirebaseDatabase.getInstance();

@@ -3,6 +3,7 @@ package com.oskarjansson.swoosh;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,9 @@ public class AchievementAdapter extends ArrayAdapter<AchievementContainer>{
         ProgressBar progressBar = (ProgressBar) convertView.findViewById(R.id.profile_achievements_grid_box_progressbar);
 
         // Inflate it with data
+        int thing = R.drawable.ic_menu_camera;
+        Log.d("AchievementAdapter","thing: " + thing );
+
         imageView.setImageResource( achievementContainer.getMipMapId() );
         textView.setText( achievementContainer.getDescription());
 
