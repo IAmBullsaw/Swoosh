@@ -1,7 +1,9 @@
 package com.oskarjansson.swoosh;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -9,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -38,8 +42,23 @@ public class MainFragment extends Fragment {
             }
         });
 
+
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("SwooshApp", Context.MODE_PRIVATE);
+        String test = sharedPreferences.getString("SwooshApp.userName","");
+
+
+        TextView title = (TextView) view.findViewById(R.id.mainTitle);
+        title.setText(test);
+
+
         return view;
     }
 
+    public void updateLevelAndTitle(String userTitle, int userLevel ) {
+        TextView title = (TextView) getView().findViewById(R.id.mainTitle);
+        TextView level = (TextView) getView().findViewById(R.id.mainLevel);
+        title.setText(userTitle);
+        level.setText(userLevel);
+    }
 
 }

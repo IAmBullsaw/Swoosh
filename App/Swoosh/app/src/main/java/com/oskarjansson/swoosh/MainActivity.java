@@ -1,6 +1,8 @@
 package com.oskarjansson.swoosh;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -18,43 +20,91 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Fragment fragment;
     private FragmentManager fragmentManager;
+    private FirebaseUser user;
     private FirebaseAuth firebaseAuth;
+    private FirebaseDatabase firebaseDatabase;
     private int RC_SIGN_IN;
+    private boolean LOGGED_IN;
+
+    private LevelRequirements levelRequirements = new LevelRequirements();
+    private int userLevel = 0;
+    private String userTitle = "Runner";
+    private String userName = "null";
+    private int userXP = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // See if we are logged in
+        RC_SIGN_IN = 0;
         firebaseAuth = FirebaseAuth.getInstance();
 
-        if ( firebaseAuth.getCurrentUser() == null) {
-            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(),RC_SIGN_IN);
+        if (firebaseAuth.getCurrentUser() == null) {
+            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), RC_SIGN_IN);
         }
 
-
         // Get level data and achievement data
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference levelReference = db.getReference("levelrequirements");
-        DatabaseReference achievementReference = db.getReference("achievements");
-
-        // TODO: Learn how to not use childlisteners
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference levelReference = firebaseDatabase.getReference("levelrequirements");
+        DatabaseReference achievementReference = firebaseDatabase.getReference("achievements");
 
 
+        // Get all levelrequirements
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("ValueEventListener: ", dataSnapshot.getValue().toString() );
+                Log.e("ValueEventListener" ,"Count: "+dataSnapshot.getChildrenCount());
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    levelRequirements.Add(postSnapshot.getValue(LevelRequirement.class));
+                }
+            }
 
-        super.onCreate(savedInstanceState);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("ValueEventListener: ","onCancelled");
+            }
+        };
+        levelReference.addValueEventListener(valueEventListener);
+
+        // Get all achievements
+        ValueEventListener valueEventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("ValueEventListener1: ", dataSnapshot.getValue().toString() );
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("ValueEventListener1: ","onCancelled");
+            }
+        };
+        achievementReference.addValueEventListener(valueEventListener1);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -68,6 +118,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // Load main fragment on start
         this.fragment = new MainFragment();
         this.fragmentManager = getSupportFragmentManager();
         this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
@@ -143,6 +194,13 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+        try {
+            MainFragment mainFragment = (MainFragment) fragment;
+            mainFragment.updateLevelAndTitle(userTitle,userLevel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // Insert the fragment by replacing any existing fragment
         this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
         // Uncomment this if you'd like.
@@ -165,4 +223,46 @@ public class MainActivity extends AppCompatActivity
                 });
         super.onDestroy();
     }
+
+    protected void UpdateSwooshUser() {
+        userLevel = levelRequirements.GetLevel( userXP );
+        userTitle = levelRequirements.GetTitle( userXP );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == RC_SIGN_IN) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                // The user picked a contact.
+                // The Intent's data Uri identifies which contact was selected.
+                user = firebaseAuth.getCurrentUser();
+
+                DatabaseReference userReference = firebaseDatabase.getReference("user/"+user.getUid()+"/data");
+                // Get user meta data
+                ValueEventListener valueEventListener2 = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Log.d("ValueEventListener2: ", dataSnapshot.getValue().toString() );
+                        Log.d("ValueEventListener2","name: " + dataSnapshot.child("name"));
+                        userName = (String) dataSnapshot.child("name").getValue();
+                        userXP = Integer.parseInt( dataSnapshot.child("xp").getValue().toString() );
+
+                        SharedPreferences sharedPreferences = getSharedPreferences("SwooshApp", Context.MODE_PRIVATE);
+                        sharedPreferences.edit().putString("SwooshApp.userName",userName).commit();
+                        sharedPreferences.edit().putString("SwooshApp.userXP",userName).commit();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d("ValueEventListener2: ","onCancelled");
+                    }
+                };
+                userReference.addValueEventListener(valueEventListener2);
+                // Do something with the contact here (bigger example below)
+            }
+        }
+    }
+
 }
