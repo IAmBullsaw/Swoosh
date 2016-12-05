@@ -1,5 +1,7 @@
 package com.oskarjansson.swoosh;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -20,7 +22,7 @@ public class LevelRequirements {
     }
 
     public void setLevelRequirements(ArrayList levelRequirements) {
-        levelRequirements = levelRequirements;
+        this.levelRequirements = levelRequirements;
         updateSize();
     }
 
@@ -30,19 +32,25 @@ public class LevelRequirements {
 
     public void Add(LevelRequirement levelRequirement) {
         levelRequirements.add(levelRequirement);
+        updateSize();
     }
 
     public int GetLevel(int xp) {
-        int level = 0;
+        int level = -1;
 
         for (int i = 0; i < size; i++) {
             LevelRequirement levelRequirement = levelRequirements.get(i);
             int req = levelRequirement.getXp();
+
             if (xp <= req) {
-                level =  i-1;
+                if (i != 0) {
+                    level = i - 1;
+                } else {
+                    level = i;
+               }
+               break;
             }
         }
-
         return level;
     }
 
@@ -53,7 +61,12 @@ public class LevelRequirements {
             LevelRequirement levelRequirement = levelRequirements.get(i);
             int req = levelRequirement.getXp();
             if (xp <= req) {
-                title = levelRequirements.get(i-1).getTitle();
+                if (i != 0) {
+                    title = levelRequirements.get(i - 1).getTitle();
+                } else {
+                    title = levelRequirements.get(i).getTitle();
+                }
+                break;
             }
         }
 

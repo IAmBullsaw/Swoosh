@@ -2,6 +2,7 @@ package com.oskarjansson.swoosh;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.preference.PreferenceManager;
@@ -54,7 +55,7 @@ public class RunActivity extends AppCompatActivity implements
     private List<Location> locations;
     private List<RunPoint> runPoints;
     private String userName;
-    private DatabaseReference userRuns;
+    private DatabaseReference userRuns, userData;
     private boolean hasPushedRun = false;
 
     @Override
@@ -89,12 +90,14 @@ public class RunActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             userName = user.getUid();
         }
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         userRuns = database.getReference("user/" + userName + "/workouts");
+        userData = database.getReference("user/" + userName + "/data/xp");
+
 
         ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
@@ -108,6 +111,13 @@ public class RunActivity extends AppCompatActivity implements
                     Log.d("Run", "Debug: " + data.getDate().toString());
                     Log.d("Run", "Pushed runPoints to firebase!");
                     hasPushedRun = true;
+
+                    SharedPreferences prefs = getSharedPreferences(MainActivity.KEY_PREF_SHARED,MODE_PRIVATE);
+                    int currentXP = prefs.getInt(MainActivity.KEY_PREF_USERXP, -1);
+                    if (currentXP != -1) {
+                        userData.setValue(currentXP + currentXP + 1);
+                    }
+
                     finish();
                 }
             }

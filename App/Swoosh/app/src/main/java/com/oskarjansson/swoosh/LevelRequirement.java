@@ -24,4 +24,14 @@ public class LevelRequirement {
     public void setXp(int xp) {
         this.xp = xp;
     }
+
+    @Override
+    public String toString() {
+        String levelreq = "[LevelReq xp:";
+        levelreq += xp;
+        levelreq += ", title: ";
+        levelreq += title;
+        levelreq += "]";
+        return levelreq;
+    }
 }

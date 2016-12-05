@@ -18,13 +18,26 @@ import android.widget.Toast;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private int userLevel = 0;
+    private String userTitle = "Title";
 
     public MainFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(MainActivity.KEY_PREF_USERTITLE))
+        {
+            Log.d("MainFragment","Shared pref changed, update title");
+            updateTitle();
+        } else if ( s.equals(MainActivity.KEY_PREF_USERLVL)) {
+            Log.d("MainFragment","Shared pref changed, update level");
+            updateLevel();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,23 +55,56 @@ public class MainFragment extends Fragment {
             }
         });
 
-
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("SwooshApp", Context.MODE_PRIVATE);
-        String test = sharedPreferences.getString("SwooshApp.userName","");
-
-
-        TextView title = (TextView) view.findViewById(R.id.mainTitle);
-        title.setText(test);
-
-
         return view;
     }
 
-    public void updateLevelAndTitle(String userTitle, int userLevel ) {
-        TextView title = (TextView) getView().findViewById(R.id.mainTitle);
-        TextView level = (TextView) getView().findViewById(R.id.mainLevel);
-        title.setText(userTitle);
-        level.setText(userLevel);
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateLevel();
+        updateTitle();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("MainFragment","onResume()");
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED,Context.MODE_PRIVATE);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("MainFragment","onPause()");
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED,Context.MODE_PRIVATE);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    public void updateLevel() {
+        if (getContext() == null) {
+            return;
+        }
+
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED, Context.MODE_PRIVATE);
+        userLevel = sharedPreferences.getInt(MainActivity.KEY_PREF_USERLVL,userLevel);
+        Log.d("MainFragment","Userlevel: " + userLevel);
+        View view = getView();
+        TextView mainLevel = (TextView) view.findViewById(R.id.mainLevel);
+        mainLevel.setText(String.valueOf(userLevel));
+    }
+
+    private void updateTitle() {
+        if (getContext() == null) {
+            return;
+        }
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED, Context.MODE_PRIVATE);
+        userTitle = sharedPreferences.getString(MainActivity.KEY_PREF_USERTITLE, userTitle);
+        Log.d("MainFragment","Usertitle: " + userTitle);
+        View view = getView();
+        TextView mainTitle = (TextView) view.findViewById(R.id.mainTitle);
+        mainTitle.setText(userTitle);
+    }
+
 
 }
