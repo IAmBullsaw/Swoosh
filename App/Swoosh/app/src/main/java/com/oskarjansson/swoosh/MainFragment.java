@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,36 +15,33 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainFragment extends Fragment implements SwooshFragment {
 
-    private int userLevel = 0;
-    private String userTitle = "Title";
+    private int swooshUserLevel;
+    private String swooshUserTitle;
 
     public MainFragment() {
         // Required empty public constructor
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals(MainActivity.KEY_PREF_USERTITLE))
-        {
-            Log.d("MainFragment","Shared pref changed, update title");
-            updateTitle();
-        } else if ( s.equals(MainActivity.KEY_PREF_USERLVL)) {
-            Log.d("MainFragment","Shared pref changed, update level");
-            updateLevel();
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_main, container, false);
+
         Button button = (Button) view.findViewById(R.id.main_Button_Startmission);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +50,69 @@ public class MainFragment extends Fragment implements SharedPreferences.OnShared
 
                 Intent intent = (Intent) new Intent(view.getContext() , RunActivity.class );
                 startActivity(intent);
+            }
+        });
+
+        String swooshUserUid;
+        if (savedInstanceState == null) {
+            Bundle extras = getArguments();
+            if(extras == null) {
+                swooshUserUid = null;
+            } else {
+                swooshUserUid = extras.getString(LoginActivity.EXTRA_SWOOSHUSER_UID);
+            }
+        } else {
+            swooshUserUid = (String) savedInstanceState.getSerializable(LoginActivity.EXTRA_SWOOSHUSER_UID);
+        }
+
+        Log.d("MainFragment","SwooshuserUid: " + swooshUserUid);
+        if (swooshUserUid == null ) {
+            // TODO: Crash and burn
+            Log.d("MainFragment","SwooshUserUid is null");
+        }
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        // Get reference to data
+        // Set childlisteners to update Title and Level
+        DatabaseReference dataReference = firebaseDatabase.getReference("user/"+swooshUserUid+"/data");
+        dataReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String key = dataSnapshot.getKey();
+                if ( key.equals("level") ) {
+                    swooshUserLevel = dataSnapshot.getValue(int.class);
+                    updateLevel();
+                } else if (key.equals("title")) {
+                    swooshUserTitle = dataSnapshot.getValue(String.class);
+                    updateTitle();
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String key = dataSnapshot.getKey();
+                if ( key.equals("level") ) {
+                    swooshUserLevel = dataSnapshot.getValue(int.class);
+                    updateLevel();
+                } else if (key.equals("title")) {
+                    swooshUserTitle = dataSnapshot.getValue(String.class);
+                    updateTitle();
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
@@ -68,43 +129,31 @@ public class MainFragment extends Fragment implements SharedPreferences.OnShared
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("MainFragment","onResume()");
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED,Context.MODE_PRIVATE);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d("MainFragment","onPause()");
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED,Context.MODE_PRIVATE);
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        updateLevel();
+        updateTitle();
     }
 
     public void updateLevel() {
-        if (getContext() == null) {
-            return;
-        }
-
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED, Context.MODE_PRIVATE);
-        userLevel = sharedPreferences.getInt(MainActivity.KEY_PREF_USERLVL,userLevel);
-        Log.d("MainFragment","Userlevel: " + userLevel);
         View view = getView();
         TextView mainLevel = (TextView) view.findViewById(R.id.mainLevel);
-        mainLevel.setText(String.valueOf(userLevel));
+        mainLevel.setText(String.valueOf(swooshUserLevel));
     }
 
     private void updateTitle() {
-        if (getContext() == null) {
-            return;
-        }
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences(MainActivity.KEY_PREF_SHARED, Context.MODE_PRIVATE);
-        userTitle = sharedPreferences.getString(MainActivity.KEY_PREF_USERTITLE, userTitle);
-        Log.d("MainFragment","Usertitle: " + userTitle);
         View view = getView();
         TextView mainTitle = (TextView) view.findViewById(R.id.mainTitle);
-        mainTitle.setText(userTitle);
+        mainTitle.setText(swooshUserTitle);
     }
 
+    @Override
+    public void setSwooshUserTitle(String title) {
+        swooshUserTitle = title;
+        updateTitle();
+    }
 
+    @Override
+    public void setSwooshUserLevel(int level) {
+        swooshUserLevel = level;
+        updateLevel();
+    }
 }

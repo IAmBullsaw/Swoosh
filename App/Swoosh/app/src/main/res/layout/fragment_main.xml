@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,7 +35,7 @@
                 android:textColor="@color/colorRunner"
                 android:layout_centerHorizontal="true"
                 android:textSize="50sp"
-                android:text="@string/mainTitle" />
+                android:text="RUNNER" />
 
             <TextView
                 android:id="@+id/mainLevel"
@@ -41,7 +43,7 @@
                 android:layout_height="match_parent"
                 android:textColor="@color/colorLevel"
                 android:textSize="50sp"
-                android:text="@string/mainLevel"
+                android:text="30"
                 android:layout_toLeftOf="@id/mainTitle"/>
 
         </RelativeLayout>

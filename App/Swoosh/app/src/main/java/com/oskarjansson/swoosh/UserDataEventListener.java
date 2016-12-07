@@ -1,8 +1,10 @@
 package com.oskarjansson.swoosh;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,29 +16,16 @@ import com.google.firebase.database.ValueEventListener;
 
 public class UserDataEventListener implements ValueEventListener {
 
-    private SharedPreferences prefs;
-
-    public SharedPreferences getPrefs() {
-        return prefs;
-    }
-
-    public void setPrefs(SharedPreferences prefs) {
-        this.prefs = prefs;
-    }
-
     @Override
     public void onCancelled(DatabaseError databaseError) {
         Log.d("UserDataEventListener: ","onCancelled: " + databaseError);
     }
 
     @Override
-    public void onDataChange(DataSnapshot dataSnapshot) {Log.d("onActivityResult: ", dataSnapshot.getValue().toString() );
-        Log.d("UserDataEventListener","xp: " + dataSnapshot.child("xp").getValue() );
+    public void onDataChange(DataSnapshot dataSnapshot) {
         String userName = (String) dataSnapshot.child("name").getValue();
         int userXP = Integer.parseInt( dataSnapshot.child("xp").getValue().toString() );
-        Log.d("UserDataEventListener","userXP: " + userXP);
 
-        prefs.edit().putString(MainActivity.KEY_PREF_USERNAME,userName).apply();
-        prefs.edit().putInt(MainActivity.KEY_PREF_USERXP,userXP).apply();
+        Log.d("udEventListener - PREF","Setting userXP: " + userXP + " userName: " + userName);
     }
 }

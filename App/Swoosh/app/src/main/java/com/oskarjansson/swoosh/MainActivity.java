@@ -16,22 +16,26 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+import java.util.EventListener;
 
-    private Fragment fragment;
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Fragment currentFragment;
     private FragmentManager fragmentManager;
     private FirebaseUser user;
     private FirebaseAuth firebaseAuth;
@@ -39,34 +43,80 @@ public class MainActivity extends AppCompatActivity
     private int RC_SIGN_IN;
 
     private LevelRequirements levelRequirements = new LevelRequirements();
-    private int userLevel = 0;
-    private String userTitle = "Runner";
-    private String userName = "null";
-    private int userXP = 0;
-
-    public static final String KEY_PREF_SHARED = "SwooshApp";
-    public static final String KEY_PREF_USERNAME = "SwooshApp.user.Name";
-    public static final String KEY_PREF_USERXP = "SwooshApp.user.XP";
-    public static final String KEY_PREF_USERLVL = "SwooshApp.user.Level";
-    public static final String KEY_PREF_USERTITLE = "SwooshApp.user.Title";
-    public static final String KEY_PREF_USER_LOGGEDIN = "SwooshApp.user.LoggedIn";
+    private SwooshUser swooshUser = new SwooshUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Firstly, check if user is logged in:
-        RC_SIGN_IN = 0;
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        if (firebaseAuth.getCurrentUser() == null) {
-            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), RC_SIGN_IN);
+        String swooshUserId;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                swooshUserId = null;
+            } else {
+                swooshUserId = extras.getString(LoginActivity.EXTRA_SWOOSHUSER_UID);
+            }
+        } else {
+            swooshUserId = (String) savedInstanceState.getSerializable(LoginActivity.EXTRA_SWOOSHUSER_UID);
         }
+        if (swooshUserId == null ) {
+            // TODO: Crash and burn
+            Toast.makeText(this,"THOU SHALT NOT BE HERE",Toast.LENGTH_LONG);
+        }
+        swooshUser.setuID(swooshUserId);
 
-        // Get level data and achievement data
         firebaseDatabase = FirebaseDatabase.getInstance();
+        // Get references to level and achievements
         DatabaseReference levelReference = firebaseDatabase.getReference("levelrequirements");
         DatabaseReference achievementReference = firebaseDatabase.getReference("achievements");
+        final DatabaseReference dataReference = firebaseDatabase.getReference("user/"+swooshUser.getuID()+"/data");
+
+        dataReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String key = dataSnapshot.getKey();
+                if ( key.equals("xp") ) {
+                    Log.d("MainActivity","xp is added, setting level");
+                    int xp = dataSnapshot.getValue(int.class);
+                    if (levelRequirements.isFilled()) {
+                        int level = levelRequirements.GetLevel(xp);
+                        dataReference.child("level").setValue(level);
+                    }
+                }
+            }
+
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String key = dataSnapshot.getKey();
+                if ( key.equals("xp") ) {
+                    Log.d("MainActivity","xp is changed, setting level");
+                    int xp = dataSnapshot.getValue(int.class);
+                    if (levelRequirements.isFilled()) {
+                        int level = levelRequirements.GetLevel(xp);
+                        String title = levelRequirements.GetTitle(xp);
+                        dataReference.child("level").setValue(level);
+                        dataReference.child("title").setValue(title);
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // Get all levelrequirements
         LevelrequirementsEventListener lrEventlistener = new LevelrequirementsEventListener();
@@ -94,17 +144,27 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // Load main fragment on start
-        this.fragment = new MainFragment();
-        this.fragmentManager = getSupportFragmentManager();
-        this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        currentFragment = new MainFragment();
+        // Set arguments for MainFragment
+        Bundle bundle = new Bundle();
+        bundle.putString(LoginActivity.EXTRA_SWOOSHUSER_UID,swooshUser.getuID());
+        currentFragment.setArguments(bundle);
 
-        // Subscribe to shared preferences
-        SharedPreferences sharedPreferences = getSharedPreferences(KEY_PREF_SHARED, MODE_PRIVATE);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        sharedPreferences.edit().putInt(MainActivity.KEY_PREF_USERXP,0).apply();
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, currentFragment).commit();
 
         // Load spinner with data
         loadSpinner();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d("MainActivity","onDestroy()");
+        super.onDestroy();
+        // TODO: DO NOT FINISH HERE :O
+        Intent intent = new Intent(this,LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void loadSpinner() {
@@ -121,70 +181,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // TODO: FIX KEBAB MENU or ERASE
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        Log.d("MainActivity","Pref changed: " + s);
-        if (s.equals(KEY_PREF_USERXP)) {
-            int xp = sharedPreferences.getInt(KEY_PREF_USERXP,0);
-            int level = levelRequirements.GetLevel(xp);
-            String title = levelRequirements.GetTitle(xp);
-            Log.d("MainActivity", "Pref changed: updated level and title: " + level + " " + title);
-            if (level != -1) {
-                sharedPreferences.edit().putInt(KEY_PREF_USERLVL, level).apply();
-            }
-            if (title != "Nope") {
-                sharedPreferences.edit().putString(KEY_PREF_USERTITLE, title).apply();
-            }
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("MainActivity","onResume()");
-        // TODO: Realize why you need 2 subscribes and 1 unsubscribe...............................
-        getSharedPreferences(KEY_PREF_SHARED,MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
-        getSharedPreferences(KEY_PREF_SHARED,MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d("MainActivity","onPause()");
-        getSharedPreferences(KEY_PREF_SHARED,MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-
-
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        this.fragment = null;
+        this.currentFragment = null;
         Class fragmentClass = MainFragment.class;
         int id = item.getItemId();
         if (id == R.id.nav_run) {
@@ -202,73 +202,26 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = SettingsFragment.class;
         } else if (id == R.id.nav_share) {
             Log.d("Navigating","share");
+            finish();
         }
 
         try {
-            this.fragment = (Fragment) fragmentClass.newInstance();
+            this.currentFragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // Add the swooshUserUid for the love of god!!!
+        Bundle bundle = new Bundle();
+        bundle.putString(LoginActivity.EXTRA_SWOOSHUSER_UID,swooshUser.getuID());
+        currentFragment.setArguments(bundle);
+
         // Insert the fragment by replacing any existing fragment
-        this.fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
-        //setTitle(item.getTitle());
+        this.fragmentManager.beginTransaction().replace(R.id.flContent, currentFragment).commit();
 
         // Close drawer.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    @Override
-    protected void onDestroy() {
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d("Swoosh","Logged Out");
-                    }
-                });
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // Check which request we're responding to
-        if (requestCode == RC_SIGN_IN) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                Log.d("onActivityResult: ","RESULT_OK");
-
-                user = firebaseAuth.getCurrentUser();
-                DatabaseReference userReference = firebaseDatabase.getReference("user/"+user.getUid()+"/data");
-                // Get user meta data
-                UserDataEventListener udEventListener = new UserDataEventListener();
-
-                // UserDataEventListener requires the SharedPreferences
-                SharedPreferences sharedPreferences = getSharedPreferences(KEY_PREF_SHARED, Context.MODE_PRIVATE);
-                udEventListener.setPrefs(sharedPreferences);
-
-                userReference.addValueEventListener(udEventListener);
-
-                // Set logged in :)
-                sharedPreferences.edit().putBoolean(KEY_PREF_USER_LOGGEDIN, true).apply();
-
-            } else if ( resultCode == RESULT_CANCELED ) {
-                SharedPreferences sharedPreferences = getSharedPreferences(KEY_PREF_SHARED, Context.MODE_PRIVATE);
-                sharedPreferences.edit().putBoolean(KEY_PREF_USER_LOGGEDIN, false).apply();
-                Log.d("onActivityResult: ","RESULT_CANCELED");
-            } else if ( resultCode == RESULT_FIRST_USER) {
-                Log.d("onActivityResult: ","RESULT_FIRST_USER");
-                SharedPreferences sharedPreferences = getSharedPreferences(KEY_PREF_SHARED, Context.MODE_PRIVATE);
-                sharedPreferences.edit().putBoolean(KEY_PREF_USER_LOGGEDIN, false).apply();
-            }
-
-        }
-    }
-
-
-
 }

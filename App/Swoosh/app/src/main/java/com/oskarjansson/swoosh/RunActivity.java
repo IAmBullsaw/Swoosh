@@ -99,6 +99,7 @@ public class RunActivity extends AppCompatActivity implements
         userData = database.getReference("user/" + userName + "/data/xp");
 
 
+
         ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,11 +113,8 @@ public class RunActivity extends AppCompatActivity implements
                     Log.d("Run", "Pushed runPoints to firebase!");
                     hasPushedRun = true;
 
-                    SharedPreferences prefs = getSharedPreferences(MainActivity.KEY_PREF_SHARED,MODE_PRIVATE);
-                    int currentXP = prefs.getInt(MainActivity.KEY_PREF_USERXP, -1);
-                    if (currentXP != -1) {
-                        userData.setValue(currentXP + currentXP + 1);
-                    }
+                    Intent intent = (Intent) new Intent(view.getContext(),MissionCompletedActivity.class);
+                    startActivity(intent);
 
                     finish();
                 }

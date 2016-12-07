@@ -29,10 +29,10 @@ public class LevelrequirementsEventListener implements ValueEventListener {
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-        Log.d("ValueEventListener: ", dataSnapshot.getValue().toString() );
-        Log.d("LevelreqEventListener" ,"Count: "+dataSnapshot.getChildrenCount());
+        Log.d("lrEventListener","onDataChange()");
         for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
             levelRequirements.Add(postSnapshot.getValue(LevelRequirement.class));
         }
+        Log.d("lrEventListener","All levelRequirements added!");
     }
 }

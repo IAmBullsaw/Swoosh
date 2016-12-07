@@ -73,4 +73,8 @@ public class LevelRequirements {
         return title;
     }
 
+    public boolean isFilled() {
+        return (size == 26);
+    }
+
 }
