@@ -55,10 +55,10 @@ public class MainActivity extends AppCompatActivity
             if(extras == null) {
                 swooshUserId = null;
             } else {
-                swooshUserId = extras.getString(LoginActivity.EXTRA_SWOOSHUSER_UID);
+                swooshUserId = extras.getString(Constants.SWOOSH_USER_UID);
             }
         } else {
-            swooshUserId = (String) savedInstanceState.getSerializable(LoginActivity.EXTRA_SWOOSHUSER_UID);
+            swooshUserId = (String) savedInstanceState.getSerializable(Constants.SWOOSH_USER_UID);
         }
         if (swooshUserId == null ) {
             // TODO: Crash and burn
@@ -77,8 +77,13 @@ public class MainActivity extends AppCompatActivity
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String key = dataSnapshot.getKey();
                 if ( key.equals("xp") ) {
-                    Log.d("MainActivity","xp is added, setting level");
                     int xp = dataSnapshot.getValue(int.class);
+                    Log.d("MainActivity","xp is added: " +xp);
+                    swooshUser.setXp(xp);
+
+                    SharedPreferences sharedPreferences = getSharedPreferences(Constants.SWOOSH_SHARED_PREFS, MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(Constants.SWOOSH_USER_XP,xp).apply();
+
                     if (levelRequirements.isFilled()) {
                         int level = levelRequirements.GetLevel(xp);
                         dataReference.child("level").setValue(level);
@@ -91,8 +96,14 @@ public class MainActivity extends AppCompatActivity
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String key = dataSnapshot.getKey();
                 if ( key.equals("xp") ) {
-                    Log.d("MainActivity","xp is changed, setting level");
                     int xp = dataSnapshot.getValue(int.class);
+                    Log.d("MainActivity","xp is changed: " + xp);
+                    swooshUser.setXp(xp);
+
+                    SharedPreferences sharedPreferences = getSharedPreferences(Constants.SWOOSH_SHARED_PREFS, MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(Constants.SWOOSH_USER_XP,xp).apply();
+
+
                     if (levelRequirements.isFilled()) {
                         int level = levelRequirements.GetLevel(xp);
                         String title = levelRequirements.GetTitle(xp);
@@ -147,7 +158,9 @@ public class MainActivity extends AppCompatActivity
         currentFragment = new MainFragment();
         // Set arguments for MainFragment
         Bundle bundle = new Bundle();
-        bundle.putString(LoginActivity.EXTRA_SWOOSHUSER_UID,swooshUser.getuID());
+        Log.d("RunActivity","currentXP: "+swooshUser.getXp());
+        bundle.putString(Constants.SWOOSH_USER_UID,swooshUser.getuID());
+        bundle.putInt(Constants.SWOOSH_USER_XP,swooshUser.getXp());
         currentFragment.setArguments(bundle);
 
         fragmentManager = getSupportFragmentManager();
@@ -213,7 +226,8 @@ public class MainActivity extends AppCompatActivity
 
         // Add the swooshUserUid for the love of god!!!
         Bundle bundle = new Bundle();
-        bundle.putString(LoginActivity.EXTRA_SWOOSHUSER_UID,swooshUser.getuID());
+        bundle.putString(Constants.SWOOSH_USER_UID,swooshUser.getuID());
+        bundle.putInt(Constants.SWOOSH_USER_XP,swooshUser.getXp());
         currentFragment.setArguments(bundle);
 
         // Insert the fragment by replacing any existing fragment

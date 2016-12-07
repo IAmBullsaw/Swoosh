@@ -1,6 +1,8 @@
 package com.oskarjansson.swoosh;
 
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -10,7 +12,7 @@ import java.util.Locale;
  * Created by oskja067 on 2016-11-29.
  */
 
-public class RunPoint {
+public class RunPoint implements Parcelable{
 
     private double lat;
     private double lng;
@@ -26,6 +28,15 @@ public class RunPoint {
         this.realTime = -1;
         this.speed = -1;
         this.time = -1;
+    }
+
+    public RunPoint (Parcel parcel) {
+        this.speed = parcel.readFloat();
+        this.time = parcel.readLong();
+        this.realTime = parcel.readLong();
+        this.lat = parcel.readDouble();
+        this.lng = parcel.readDouble();
+        this.altitude = parcel.readDouble();
     }
 
     public RunPoint(double altitude, double lat, double lng, long realTime, float speed, long time) {
@@ -103,5 +114,30 @@ public class RunPoint {
         return String.format(Locale.UK,"[RunPoint (%f:%f) ]",lat,lng);
     }
 
+    // Keeping it like this since I am 99% sure I am not using it...
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeFloat(speed);
+        parcel.writeLong(time);
+        parcel.writeLong(realTime);
+        parcel.writeDouble(lat);
+        parcel.writeDouble(lng);
+        parcel.writeDouble(altitude);
+    }
+
+    public static final Parcelable.Creator<RunPoint> CREATOR = new Parcelable.Creator<RunPoint>() {
+        public RunPoint createFromParcel(Parcel parcel) {
+            return new RunPoint(parcel);
+        }
+
+        public RunPoint[] newArray(int size) {
+            return new RunPoint[size];
+        }
+    };
 
 }

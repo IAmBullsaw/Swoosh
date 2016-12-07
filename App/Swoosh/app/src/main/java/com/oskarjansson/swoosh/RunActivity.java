@@ -57,6 +57,7 @@ public class RunActivity extends AppCompatActivity implements
     private String userName;
     private DatabaseReference userRuns, userData;
     private boolean hasPushedRun = false;
+    private int currentXP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,23 @@ public class RunActivity extends AppCompatActivity implements
         locations = new ArrayList<Location>();
         runPoints = new ArrayList<RunPoint>();
         setContentView(R.layout.activity_run);
+
+        int fetchedXP;
+        ArrayList<RunPoint> fetchedRun;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                fetchedXP = -1;
+            } else {
+                fetchedXP = extras.getInt(Constants.SWOOSH_USER_XP);
+            }
+        } else {
+            fetchedXP = (int) savedInstanceState.getSerializable(Constants.SWOOSH_USER_XP);
+        }
+
+        Log.d("RunActivity","fetchedXP: "+fetchedXP);
+
+        currentXP = fetchedXP;
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -98,8 +116,6 @@ public class RunActivity extends AppCompatActivity implements
         userRuns = database.getReference("user/" + userName + "/workouts");
         userData = database.getReference("user/" + userName + "/data/xp");
 
-
-
         ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +129,12 @@ public class RunActivity extends AppCompatActivity implements
                     Log.d("Run", "Pushed runPoints to firebase!");
                     hasPushedRun = true;
 
-                    Intent intent = (Intent) new Intent(view.getContext(),MissionCompletedActivity.class);
+                    ArrayList<RunPoint> test = (ArrayList<RunPoint>) runPoints;
+
+                    Intent intent = new Intent(view.getContext(),MissionCompletedActivity.class);
+                    Log.d("RunActivity","currentXP: "+currentXP);
+                    intent.putExtra(Constants.SWOOSH_USER_XP,currentXP);
+                    intent.putParcelableArrayListExtra(Constants.SWOOSH_USER_RUN,test);
                     startActivity(intent);
 
                     finish();

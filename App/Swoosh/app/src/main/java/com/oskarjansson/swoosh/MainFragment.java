@@ -31,6 +31,7 @@ public class MainFragment extends Fragment implements SwooshFragment {
 
     private int swooshUserLevel;
     private String swooshUserTitle;
+    private int swooshUserXP;
 
     public MainFragment() {
         // Required empty public constructor
@@ -49,6 +50,7 @@ public class MainFragment extends Fragment implements SwooshFragment {
                 Log.d("Button","main_Button_Startmission CLICKED :D");
 
                 Intent intent = (Intent) new Intent(view.getContext() , RunActivity.class );
+                intent.putExtra(Constants.SWOOSH_USER_XP,swooshUserXP);
                 startActivity(intent);
             }
         });
@@ -59,10 +61,13 @@ public class MainFragment extends Fragment implements SwooshFragment {
             if(extras == null) {
                 swooshUserUid = null;
             } else {
-                swooshUserUid = extras.getString(LoginActivity.EXTRA_SWOOSHUSER_UID);
+                swooshUserUid = extras.getString(Constants.SWOOSH_USER_UID);
+                swooshUserXP = extras.getInt(Constants.SWOOSH_USER_XP);
             }
         } else {
-            swooshUserUid = (String) savedInstanceState.getSerializable(LoginActivity.EXTRA_SWOOSHUSER_UID);
+            swooshUserUid = (String) savedInstanceState.getSerializable(Constants.SWOOSH_USER_UID);
+            int test = savedInstanceState.getInt(Constants.SWOOSH_USER_XP);
+            swooshUserXP = test; //(int) savedInstanceState.getSerializable(Constants.SWOOSH_USER_XP);
         }
 
         Log.d("MainFragment","SwooshuserUid: " + swooshUserUid);

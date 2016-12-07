@@ -10,4 +10,32 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.oskarjansson.swoosh.MissionCompletedActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/missionCompleted_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/missionCompleted_title"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/missionCompleted_XP"/>
+        <TextView
+            android:id="@+id/missionCompleted_swooshUserXP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="not set"/>
+
+        <Button
+            android:id="@+id/missionCompleted_button_Done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/missionCompleted_Button_Done"/>
+
+    </LinearLayout>
+
 </RelativeLayout>

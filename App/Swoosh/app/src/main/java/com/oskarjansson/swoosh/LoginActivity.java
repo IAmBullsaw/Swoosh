@@ -16,7 +16,6 @@ import com.google.firebase.database.FirebaseDatabase;
 public class LoginActivity extends AppCompatActivity {
 
     private int RC_SIGN_IN = 0;
-    public static String EXTRA_SWOOSHUSER_UID = "SwooshUserUid";
 
     // For Firebase
     private FirebaseAuth firebaseAuth;
@@ -33,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), RC_SIGN_IN);
         } else {
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(EXTRA_SWOOSHUSER_UID,firebaseUser.getUid());
+            intent.putExtra(Constants.SWOOSH_USER_UID,firebaseUser.getUid());
             startActivity(intent);
             finish();
         }
@@ -51,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
                 firebaseUser = firebaseAuth.getCurrentUser();
 
                 Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra(EXTRA_SWOOSHUSER_UID,firebaseUser.getUid());
+                intent.putExtra(Constants.SWOOSH_USER_UID,firebaseUser.getUid());
                 startActivity(intent);
                 finish();
 
