@@ -11,6 +11,7 @@
     tools:context="com.oskarjansson.swoosh.MissionCompletedActivity">
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -18,22 +19,58 @@
             android:id="@+id/missionCompleted_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:textSize="@dimen/missionCompleted_textSize_title"
+            android:textColor="@color/colorRunner"
+            android:layout_marginTop="@dimen/missionCompleted_margin_top_title1"
             android:text="@string/missionCompleted_title"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/missionCompleted_margin_top_title2"
+            android:textSize="@dimen/missionCompleted_textSize_title2"
+            android:textColor="@color/colorRunner"
             android:text="@string/missionCompleted_XP"/>
         <TextView
             android:id="@+id/missionCompleted_swooshUserXP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:textSize="@dimen/missionCompleted_textSize_XP"
+            android:layout_margin="@dimen/missionCompleted_margin_XP"
+            android:textColor="@color/colorLevel"
+            android:text="not set"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/missionCompleted_margin_top_title2"
+            android:textSize="@dimen/missionCompleted_textSize_title2"
+            android:textColor="@color/colorRunner"
+            android:text="Mission length:"/>
+        <TextView
+            android:id="@+id/missionCompleted_workout_length"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:textSize="@dimen/missionCompleted_textSize_length"
+            android:textColor="@color/colorLevel"
             android:text="not set"/>
 
         <Button
             android:id="@+id/missionCompleted_button_Done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/missionCompleted_margin_button"
             android:text="@string/missionCompleted_Button_Done"/>
 
     </LinearLayout>

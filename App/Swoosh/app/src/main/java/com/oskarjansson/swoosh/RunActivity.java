@@ -55,9 +55,8 @@ public class RunActivity extends AppCompatActivity implements
     private List<Location> locations;
     private List<RunPoint> runPoints;
     private String userName;
-    private DatabaseReference userRuns, userData;
+    private DatabaseReference userRuns;
     private boolean hasPushedRun = false;
-    private int currentXP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,23 +64,6 @@ public class RunActivity extends AppCompatActivity implements
         locations = new ArrayList<Location>();
         runPoints = new ArrayList<RunPoint>();
         setContentView(R.layout.activity_run);
-
-        int fetchedXP;
-        ArrayList<RunPoint> fetchedRun;
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(extras == null) {
-                fetchedXP = -1;
-            } else {
-                fetchedXP = extras.getInt(Constants.SWOOSH_USER_XP);
-            }
-        } else {
-            fetchedXP = (int) savedInstanceState.getSerializable(Constants.SWOOSH_USER_XP);
-        }
-
-        Log.d("RunActivity","fetchedXP: "+fetchedXP);
-
-        currentXP = fetchedXP;
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -114,7 +96,6 @@ public class RunActivity extends AppCompatActivity implements
         }
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         userRuns = database.getReference("user/" + userName + "/workouts");
-        userData = database.getReference("user/" + userName + "/data/xp");
 
         ImageButton stopButton = (ImageButton) findViewById(R.id.run_StopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
@@ -122,19 +103,19 @@ public class RunActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 Log.d("Run", "Pushed stopButton!");
                 if (!hasPushedRun) {
+                    /*
                     DatabaseReference run = userRuns.push();
                     RunContainer data = new RunContainer(run.getKey(),runPoints);
                     run.setValue(data);
                     Log.d("Run", "Debug: " + data.getDate().toString());
                     Log.d("Run", "Pushed runPoints to firebase!");
+                    */
                     hasPushedRun = true;
 
-                    ArrayList<RunPoint> test = (ArrayList<RunPoint>) runPoints;
+                    ArrayList<RunPoint> alRunPoints = (ArrayList<RunPoint>) runPoints;
 
-                    Intent intent = new Intent(view.getContext(),MissionCompletedActivity.class);
-                    Log.d("RunActivity","currentXP: "+currentXP);
-                    intent.putExtra(Constants.SWOOSH_USER_XP,currentXP);
-                    intent.putParcelableArrayListExtra(Constants.SWOOSH_USER_RUN,test);
+                    Intent intent = new Intent(view.getContext(), MissionCompletedActivity.class);
+                    intent.putParcelableArrayListExtra(Constants.SWOOSH_USER_RUN,alRunPoints);
                     startActivity(intent);
 
                     finish();

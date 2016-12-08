@@ -4,8 +4,17 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -31,13 +40,51 @@ public class MissionCompletedActivity extends AppCompatActivity {
             fetchedRun = (ArrayList<RunPoint>) savedInstanceState.getSerializable(Constants.SWOOSH_USER_RUN);
         }
         swooshUserRun = fetchedRun;
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userName = null;
+        if (user != null) {
+            userName = user.getUid();
+        }else {
+            //TODO: We should do something about this....
+        }
+        // Get references to firebase
+        DatabaseReference dbWorkouts, swooshUserData;
+        dbWorkouts = database.getReference("user/" + userName + "/workouts");
+        swooshUserData = database.getReference("user/" + userName + "/data");
+
+        DatabaseReference workoutReference = dbWorkouts.push();
+        RunContainer data = new RunContainer(workoutReference.getKey(),swooshUserRun);
+
+        workoutReference.setValue(data);
+        Log.d("MissionCompleted", "Pushed RunContainer to firebase! " + workoutReference.getKey());
+
         // Get XP
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.SWOOSH_SHARED_PREFS,MODE_PRIVATE);
         swooshUserXP = sharedPreferences.getInt(Constants.SWOOSH_USER_XP,-1);
-        Log.d("MissionCompleted","XP: " + swooshUserXP);
+        Log.d("MissionCompleted","Got shared XP: " + swooshUserXP);
 
+        // Get Views
         TextView textViewXP = (TextView) findViewById(R.id.missionCompleted_swooshUserXP);
-        textViewXP.setText(""+swooshUserXP);
+        TextView textViewLength = (TextView) findViewById(R.id.missionCompleted_workout_length);
+
+        // Set data
+        textViewXP.setText(""+data.getXp());
+        textViewLength.setText(""+data.getLength());
+
+        // Push new xp to firebase
+        swooshUserData.child("xp").setValue(swooshUserXP + data.getXp());
+        Log.d("MissionCompleted", "Pushed xp to firebase! " + swooshUserXP + data.getXp());
+
+        Button done = (Button) findViewById(R.id.missionCompleted_button_Done);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
     }
 }

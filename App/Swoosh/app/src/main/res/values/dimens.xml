@@ -17,4 +17,12 @@
     <dimen name="profile_Achievements_grid_box_margin">10dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="missionCompleted_margin_top_title1">50sp</dimen>
+    <dimen name="missionCompleted_margin_top_title2">20sp</dimen>
+    <dimen name="missionCompleted_textSize_title">25sp</dimen>
+    <dimen name="missionCompleted_textSize_title2">16sp</dimen>
+    <dimen name="missionCompleted_textSize_length">20sp</dimen>
+    <dimen name="missionCompleted_textSize_XP">25sp</dimen>
+    <dimen name="missionCompleted_margin_XP">20sp</dimen>
+    <dimen name="missionCompleted_margin_button">40sp</dimen>
 </resources>
