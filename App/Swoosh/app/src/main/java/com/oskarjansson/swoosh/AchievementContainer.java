@@ -1,5 +1,7 @@
 package com.oskarjansson.swoosh;
 
+import java.util.HashMap;
+
 /**
  * Created by oskja067 on 2016-11-30.
  */
@@ -10,6 +12,7 @@ public class AchievementContainer {
     private String description;
     private int progressPercent;
     private int mipMapId;
+    private HashMap<String,Integer> requirements;
 
     public AchievementContainer() {}
 
@@ -43,5 +46,13 @@ public class AchievementContainer {
 
     public void setProgressPercent(int progressPercent) {
         this.progressPercent = progressPercent;
+    }
+
+    public HashMap<String, Integer> getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(HashMap<String, Integer> requirements) {
+        this.requirements = requirements;
     }
 }

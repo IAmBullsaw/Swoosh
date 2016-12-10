@@ -40,8 +40,13 @@ public class SettingsFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 Log.d("Swoosh","Logged Out");
+
+                                Intent intent = new Intent(getContext(),LoginActivity.class);
+                                startActivity(intent);
+                                getActivity().finish();
                             }
                         });
+
             }
         });
 

@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.EventListener;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
         swooshUser.setuID(swooshUserId);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
+
         // Get references to level and achievements
         DatabaseReference levelReference = firebaseDatabase.getReference("levelrequirements");
         DatabaseReference achievementReference = firebaseDatabase.getReference("achievements");
@@ -87,6 +89,14 @@ public class MainActivity extends AppCompatActivity
                     if (levelRequirements.isFilled()) {
                         int level = levelRequirements.GetLevel(xp);
                         dataReference.child("level").setValue(level);
+                    }
+                } else if (key.equals("requirements")) {
+                    Log.d("MainActivity","Requirements added");
+                    HashMap<String,Number> map = swooshUser.getRequirements();
+                    for ( DataSnapshot child: dataSnapshot.getChildren()
+                         ) {
+                        // This also overwrites data
+                        map.put(child.getKey(),child.getValue(double.class));
                     }
                 }
             }
@@ -109,6 +119,14 @@ public class MainActivity extends AppCompatActivity
                         String title = levelRequirements.GetTitle(xp);
                         dataReference.child("level").setValue(level);
                         dataReference.child("title").setValue(title);
+                    }
+                } else if (key.equals("requirements")) {
+                    Log.d("MainActivity","Requirements Changed");
+                    HashMap<String,Number> map = swooshUser.getRequirements();
+                    for ( DataSnapshot child: dataSnapshot.getChildren()
+                            ) {
+                        // This also overwrites data
+                        map.put(child.getKey(),child.getValue(double.class));
                     }
                 }
             }
@@ -161,6 +179,7 @@ public class MainActivity extends AppCompatActivity
         Log.d("RunActivity","currentXP: "+swooshUser.getXp());
         bundle.putString(Constants.SWOOSH_USER_UID,swooshUser.getuID());
         bundle.putInt(Constants.SWOOSH_USER_XP,swooshUser.getXp());
+        bundle.putParcelable(Constants.SWOOSH_USER, swooshUser);
         currentFragment.setArguments(bundle);
 
         fragmentManager = getSupportFragmentManager();
@@ -175,9 +194,6 @@ public class MainActivity extends AppCompatActivity
         Log.d("MainActivity","onDestroy()");
         super.onDestroy();
         // TODO: DO NOT FINISH HERE :O
-        Intent intent = new Intent(this,LoginActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     private void loadSpinner() {
@@ -215,7 +231,6 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = SettingsFragment.class;
         } else if (id == R.id.nav_share) {
             Log.d("Navigating","share");
-            finish();
         }
 
         try {
@@ -226,6 +241,7 @@ public class MainActivity extends AppCompatActivity
 
         // Add the swooshUserUid for the love of god!!!
         Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.SWOOSH_USER, swooshUser);
         bundle.putString(Constants.SWOOSH_USER_UID,swooshUser.getuID());
         bundle.putInt(Constants.SWOOSH_USER_XP,swooshUser.getXp());
         currentFragment.setArguments(bundle);

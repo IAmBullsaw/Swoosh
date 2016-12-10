@@ -25,6 +25,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+
+        // Cache all data if we go offline
+        // Also, this solves the problem of not pushing data if we go offline.
+        firebaseDatabase.setPersistenceEnabled(true);
+
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser == null ) {

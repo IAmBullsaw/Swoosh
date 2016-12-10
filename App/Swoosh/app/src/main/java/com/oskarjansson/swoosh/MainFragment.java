@@ -32,7 +32,7 @@ public class MainFragment extends Fragment implements SwooshFragment {
     private int swooshUserLevel;
     private String swooshUserTitle;
     private int swooshUserXP;
-
+    private SwooshUser swooshUser;
     public MainFragment() {
         // Required empty public constructor
     }
@@ -61,13 +61,17 @@ public class MainFragment extends Fragment implements SwooshFragment {
             if(extras == null) {
                 swooshUserUid = null;
             } else {
+                swooshUser = extras.getParcelable(Constants.SWOOSH_USER);
                 swooshUserUid = extras.getString(Constants.SWOOSH_USER_UID);
                 swooshUserXP = extras.getInt(Constants.SWOOSH_USER_XP);
+                Log.d("MainFragment"," SwooshUser: " + swooshUser.getXp());
             }
         } else {
             swooshUserUid = (String) savedInstanceState.getSerializable(Constants.SWOOSH_USER_UID);
             int test = savedInstanceState.getInt(Constants.SWOOSH_USER_XP);
-            swooshUserXP = test; //(int) savedInstanceState.getSerializable(Constants.SWOOSH_USER_XP);
+            swooshUserXP = test;
+            swooshUser = savedInstanceState.getParcelable(Constants.SWOOSH_USER);
+            Log.d("MainFragment"," SwooshUser: " + swooshUser.getXp());
         }
 
         Log.d("MainFragment","SwooshuserUid: " + swooshUserUid);
