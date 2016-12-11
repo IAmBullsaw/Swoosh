@@ -50,6 +50,8 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        // TODO: Be able to change name. Be able to change theme from white to black.
+
         return view;
     }
 

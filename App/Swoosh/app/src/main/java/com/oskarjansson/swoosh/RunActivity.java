@@ -103,15 +103,7 @@ public class RunActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 Log.d("Run", "Pushed stopButton!");
                 if (!hasPushedRun) {
-                    /*
-                    DatabaseReference run = userRuns.push();
-                    RunContainer data = new RunContainer(run.getKey(),runPoints);
-                    run.setValue(data);
-                    Log.d("Run", "Debug: " + data.getDate().toString());
-                    Log.d("Run", "Pushed runPoints to firebase!");
-                    */
                     hasPushedRun = true;
-
                     ArrayList<RunPoint> alRunPoints = (ArrayList<RunPoint>) runPoints;
 
                     Intent intent = new Intent(view.getContext(), MissionCompletedActivity.class);

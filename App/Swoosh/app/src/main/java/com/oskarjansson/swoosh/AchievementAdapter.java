@@ -18,9 +18,9 @@ import java.util.ArrayList;
  * Created by oskja067 on 2016-11-30.
  */
 
-public class AchievementAdapter extends ArrayAdapter<AchievementContainer>{
+public class AchievementAdapter extends ArrayAdapter<Achievement>{
 
-    public AchievementAdapter(Context context, ArrayList<AchievementContainer> achievementContainers) {
+    public AchievementAdapter(Context context, ArrayList<Achievement> achievementContainers) {
         super(context,0,achievementContainers);
     }
 
@@ -28,7 +28,7 @@ public class AchievementAdapter extends ArrayAdapter<AchievementContainer>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        AchievementContainer achievementContainer = getItem(position);
+        Achievement achievementContainer = getItem(position);
 
         if (convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.profile_achievement_grid_view_box, parent, false);
@@ -40,9 +40,6 @@ public class AchievementAdapter extends ArrayAdapter<AchievementContainer>{
         ProgressBar progressBar = (ProgressBar) convertView.findViewById(R.id.profile_achievements_grid_box_progressbar);
 
         // Inflate it with data
-        int thing = R.drawable.ic_menu_camera;
-        Log.d("AchievementAdapter","thing: " + thing );
-
         imageView.setImageResource( achievementContainer.getMipMapId() );
         textView.setText( achievementContainer.getDescription());
 
@@ -51,8 +48,12 @@ public class AchievementAdapter extends ArrayAdapter<AchievementContainer>{
             imageView.setBackgroundColor(Color.rgb(0, 255, 0));
         } else {
             progressBar.setProgress(achievementContainer.getProgressPercent());
+            progressBar.setIndeterminate(false);
             progressBar.setVisibility(View.VISIBLE);
         }
+
+        Log.d("AchievementAdapter","Achievement: " + achievementContainer);
+
 
         return convertView;
     }

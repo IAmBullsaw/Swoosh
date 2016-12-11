@@ -44,16 +44,16 @@ public class MissionCompletedActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userName = null;
+        String userUid = null;
         if (user != null) {
-            userName = user.getUid();
+            userUid = user.getUid();
         }else {
             //TODO: We should do something about this....
         }
         // Get references to firebase
         DatabaseReference dbWorkouts, swooshUserData;
-        dbWorkouts = database.getReference("user/" + userName + "/workouts");
-        swooshUserData = database.getReference("user/" + userName + "/data");
+        dbWorkouts = database.getReference( Constants.UserWorkoutsDatabaseReference(userUid));
+        swooshUserData = database.getReference( Constants.UserDataDatabaseReference(userUid));
 
         DatabaseReference workoutReference = dbWorkouts.push();
         RunContainer data = new RunContainer(workoutReference.getKey(),swooshUserRun);

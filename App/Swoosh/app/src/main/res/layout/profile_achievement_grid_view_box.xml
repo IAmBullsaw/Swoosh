@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/profile_Achievements_grid_box_margin">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:layout_margin="@dimen/profile_Achievements_grid_box_margin"
+    >
 
     <ImageView
         android:id="@+id/profile_achievements_grid_box_image"
@@ -12,7 +14,11 @@
         android:src="@drawable/ic_menu_camera"/>
 
     <ProgressBar
+        style="@android:style/Widget.ProgressBar.Horizontal"
         android:id="@+id/profile_achievements_grid_box_progressbar"
+        android:progressBackgroundTint="@color/colorRunner"
+        android:progressTint="@color/colorAccent"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"/>

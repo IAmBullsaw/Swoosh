@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,10 +68,13 @@ public class MainFragment extends Fragment implements SwooshFragment {
                 Log.d("MainFragment"," SwooshUser: " + swooshUser.getXp());
             }
         } else {
+            super.onSaveInstanceState(savedInstanceState);
+            Log.d("MainFragment",", swooshUserXP = "+swooshUserXP + ", swooshUser = " + swooshUser);
             swooshUserUid = (String) savedInstanceState.getSerializable(Constants.SWOOSH_USER_UID);
             int test = savedInstanceState.getInt(Constants.SWOOSH_USER_XP);
             swooshUserXP = test;
             swooshUser = savedInstanceState.getParcelable(Constants.SWOOSH_USER);
+            Log.d("MainFragment","test = "+test+", swooshUserXP = "+swooshUserXP + ", swooshUser = " + swooshUser);
             Log.d("MainFragment"," SwooshUser: " + swooshUser.getXp());
         }
 
@@ -144,14 +148,18 @@ public class MainFragment extends Fragment implements SwooshFragment {
 
     public void updateLevel() {
         View view = getView();
-        TextView mainLevel = (TextView) view.findViewById(R.id.mainLevel);
-        mainLevel.setText(String.valueOf(swooshUserLevel));
+        if (ViewCompat.isLaidOut(view)) {
+            TextView mainLevel = (TextView) view.findViewById(R.id.mainLevel);
+            mainLevel.setText(String.valueOf(swooshUserLevel));
+        }
     }
 
     private void updateTitle() {
         View view = getView();
-        TextView mainTitle = (TextView) view.findViewById(R.id.mainTitle);
-        mainTitle.setText(swooshUserTitle);
+        if (ViewCompat.isLaidOut(view)) {
+            TextView mainTitle = (TextView) view.findViewById(R.id.mainTitle);
+            mainTitle.setText(swooshUserTitle);
+        }
     }
 
     @Override

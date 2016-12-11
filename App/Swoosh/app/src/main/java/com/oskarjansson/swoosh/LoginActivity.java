@@ -20,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     // For Firebase
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    // private int called = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +28,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-
+        // called += 1;
         // Cache all data if we go offline
         // Also, this solves the problem of not pushing data if we go offline.
-        firebaseDatabase.setPersistenceEnabled(true);
-
+        // if (called <= 1) { // TODO: Make sure to only call this ONCE and firstly
+        //    firebaseDatabase.setPersistenceEnabled(true);
+        // }
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser == null ) {
@@ -52,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                Log.d("Logged in:D ","RESULT_OK");
+                Log.d("LoginActivity","RESULT_OK");
 
                 firebaseUser = firebaseAuth.getCurrentUser();
 
@@ -62,9 +64,14 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
 
             } else if ( resultCode == RESULT_CANCELED ) {
-                Log.d("onActivityResult: ","RESULT_CANCELED");
+                Log.d("LoginActivity","RESULT_CANCELED");
+                // Todo: Do something about this"
+                finish();
             } else if ( resultCode == RESULT_FIRST_USER) {
-                Log.d("onActivityResult: ","RESULT_FIRST_USER");
+                Log.d("LoginActivity","RESULT_FIRST_USER");
+            } else {
+                Log.d("LoginActivity","Else: " + resultCode);
+                finish();
             }
 
         }

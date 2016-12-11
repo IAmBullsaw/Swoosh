@@ -11,12 +11,12 @@ import java.util.HashMap;
  */
 
 public class SwooshUser implements Parcelable {
-    private String title;
-    private String name;
     private int level;
+    private String name;
+    private String title;
     private int xp;
     private String uID;
-    private HashMap<String,Number> requirements;
+    private HashMap<String,Integer> requirements;
 
     // Let's just keep it this way, shall we not ?
     @Override
@@ -44,7 +44,7 @@ public class SwooshUser implements Parcelable {
         uID = parcel.readString();
         Bundle bundle = parcel.readBundle();
         //noinspection unchecked
-        requirements = (HashMap<String, Number>) bundle.getSerializable("requirements");
+        requirements = (HashMap<String, Integer>) bundle.getSerializable("requirements");
     }
 
     public static final Parcelable.Creator<SwooshUser> CREATOR = new Parcelable.Creator<SwooshUser>() {
@@ -70,7 +70,7 @@ public class SwooshUser implements Parcelable {
         this.level = -1;
         this.title = "null";
         this.xp = -1;
-        this.requirements = new HashMap<String, Number>();
+        this.requirements = new HashMap<String, Integer>();
     }
 
     public int getLevel() {
@@ -105,12 +105,16 @@ public class SwooshUser implements Parcelable {
         this.name = name;
     }
 
-    public HashMap<String, Number> getRequirements() {
+    public HashMap<String, Integer> getRequirements() {
         return requirements;
     }
 
-    public void setRequirements(HashMap<String, Number> requirements) {
+    public void setRequirements(HashMap<String, Integer> requirements) {
         this.requirements = requirements;
     }
 
+    @Override
+    public String toString() {
+        return "[SwooshUser: " + name + ", " + title + ", Level:" + level + " (" + xp +"), " + uID +"]";
+    }
 }

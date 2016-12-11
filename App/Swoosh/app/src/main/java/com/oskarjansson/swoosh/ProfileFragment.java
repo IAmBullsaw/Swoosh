@@ -18,13 +18,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ProfileFragment extends Fragment {
-
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -35,53 +35,38 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
-        // Get userID
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userName;
-        if (user != null) {
-            userName = user.getUid();
+        Log.d("ProfileFragment","OnCreateView()" );
+        // Get swooshUser
+        SwooshUser swooshUser = new SwooshUser();
+        ArrayList<Achievement> achievements = new ArrayList<Achievement>();
+        if (savedInstanceState == null) {
+            Bundle extras = getArguments();
+            if(extras == null) {
+                swooshUser = null;
+                achievements = null;
+            } else {
+                swooshUser = extras.getParcelable(Constants.SWOOSH_USER);
+                achievements = extras.getParcelableArrayList(Constants.DB_ACHIEVEMENTS);
+            }
         } else {
-            throw new RuntimeException("Profile Fragment: No user.getUid(). What gives? This shan't happen!");
+            super.onSaveInstanceState(savedInstanceState);
+            swooshUser = savedInstanceState.getParcelable(Constants.SWOOSH_USER);
+            achievements = savedInstanceState.getParcelableArrayList(Constants.DB_ACHIEVEMENTS);
+        }
+        if (swooshUser != null ) {
+            Log.d("ProfileFragment", "Bundled: " + swooshUser.toString());
+        } else { Log.d("ProfileFragment", "SwooshUser was null!");}
+
+        if (achievements != null ) {
+            Log.d("ProfileFragment", "Bundled: " + achievements.toString());
+        } else { Log.d("ProfileFragment", "Achievements was null!");}
+        HashMap<String,Integer> userData = swooshUser.getRequirements();
+        for (Achievement achievement: achievements
+             ) {
+            achievement.updateAchieved(userData);
         }
 
-        final AchievementAdapter achievementAdapter = new AchievementAdapter(this.getContext(),new ArrayList<AchievementContainer>());
-
-        // TODO: Pull them to be able to show them :D
-
-        // Get User Progress
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = database.getReference("user/" + userName + "/achievements");
-
-        ChildEventListener childEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("ProfileFragment","onChildAdded " + dataSnapshot.getKey());
-                AchievementContainer achievementContainer = dataSnapshot.getValue(AchievementContainer.class);
-                achievementAdapter.add(achievementContainer);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        databaseReference.addChildEventListener(childEventListener);
+        final AchievementAdapter achievementAdapter = new AchievementAdapter(this.getContext(), achievements);
 
         GridView gridView = (GridView) view.findViewById(R.id.profile_achievements_grid);
 

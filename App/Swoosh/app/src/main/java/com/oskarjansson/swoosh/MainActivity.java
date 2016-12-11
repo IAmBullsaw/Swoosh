@@ -30,6 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
 
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     private int RC_SIGN_IN;
 
     private LevelRequirements levelRequirements = new LevelRequirements();
+    private ArrayList<Achievement> achievements = new ArrayList<Achievement>();
     private SwooshUser swooshUser = new SwooshUser();
 
     @Override
@@ -70,17 +72,17 @@ public class MainActivity extends AppCompatActivity
         firebaseDatabase = FirebaseDatabase.getInstance();
 
         // Get references to level and achievements
-        DatabaseReference levelReference = firebaseDatabase.getReference("levelrequirements");
-        DatabaseReference achievementReference = firebaseDatabase.getReference("achievements");
-        final DatabaseReference dataReference = firebaseDatabase.getReference("user/"+swooshUser.getuID()+"/data");
+        DatabaseReference levelReference = firebaseDatabase.getReference( Constants.DB_LEVELREQUIREMENTS );
+        DatabaseReference achievementReference = firebaseDatabase.getReference( Constants.DB_ACHIEVEMENTS );
+        final DatabaseReference dataReference = firebaseDatabase.getReference( Constants.UserDataDatabaseReference(swooshUser.getuID()) );
 
         dataReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String key = dataSnapshot.getKey();
-                if ( key.equals("xp") ) {
+                if ( key.equals( Constants.DB_USER_DATA_XP ) ) {
                     int xp = dataSnapshot.getValue(int.class);
-                    Log.d("MainActivity","xp is added: " +xp);
+                    Log.d("MainActivity","xp is added: " + xp);
                     swooshUser.setXp(xp);
 
                     SharedPreferences sharedPreferences = getSharedPreferences(Constants.SWOOSH_SHARED_PREFS, MODE_PRIVATE);
@@ -88,24 +90,31 @@ public class MainActivity extends AppCompatActivity
 
                     if (levelRequirements.isFilled()) {
                         int level = levelRequirements.GetLevel(xp);
-                        dataReference.child("level").setValue(level);
+                        String title = levelRequirements.GetTitle(xp);
+                        swooshUser.setLevel(level);
+                        swooshUser.setTitle(title);
+                        dataReference.child(Constants.DB_USER_DATA_LEVEL).setValue(level);
+                        dataReference.child(Constants.DB_USER_DATA_TITLE).setValue(title);
                     }
-                } else if (key.equals("requirements")) {
+                } else if (key.equals(Constants.DB_USER_DATA_REQUIREMENTS)) {
                     Log.d("MainActivity","Requirements added");
-                    HashMap<String,Number> map = swooshUser.getRequirements();
+                    HashMap<String,Integer> map = swooshUser.getRequirements();
                     for ( DataSnapshot child: dataSnapshot.getChildren()
                          ) {
-                        // This also overwrites data
-                        map.put(child.getKey(),child.getValue(double.class));
+                        // This also overwrites the data
+                        Log.d("MainActivity","Requirement: " + child.getKey() + " <-> " + child.getValue().toString());
+                        map.put(child.getKey(),child.getValue(int.class));
                     }
+                } else if ( key.equals(Constants.DB_USER_DATA_NAME) ) {
+                    Log.d("MainActivity","SwooshUserName added");
+                    swooshUser.setName(dataSnapshot.getValue(String.class));
                 }
             }
-
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String key = dataSnapshot.getKey();
-                if ( key.equals("xp") ) {
+                if ( key.equals(Constants.DB_USER_DATA_XP) ) {
                     int xp = dataSnapshot.getValue(int.class);
                     Log.d("MainActivity","xp is changed: " + xp);
                     swooshUser.setXp(xp);
@@ -117,16 +126,19 @@ public class MainActivity extends AppCompatActivity
                     if (levelRequirements.isFilled()) {
                         int level = levelRequirements.GetLevel(xp);
                         String title = levelRequirements.GetTitle(xp);
-                        dataReference.child("level").setValue(level);
-                        dataReference.child("title").setValue(title);
+                        swooshUser.setLevel(level);
+                        swooshUser.setTitle(title);
+                        dataReference.child(Constants.DB_USER_DATA_LEVEL).setValue(level);
+                        dataReference.child(Constants.DB_USER_DATA_TITLE).setValue(title);
                     }
-                } else if (key.equals("requirements")) {
+                } else if (key.equals(Constants.DB_USER_DATA_REQUIREMENTS)) {
                     Log.d("MainActivity","Requirements Changed");
-                    HashMap<String,Number> map = swooshUser.getRequirements();
+                    HashMap<String,Integer> map = swooshUser.getRequirements();
                     for ( DataSnapshot child: dataSnapshot.getChildren()
                             ) {
                         // This also overwrites data
-                        map.put(child.getKey(),child.getValue(double.class));
+                        Log.d("MainActivity","Requirement: " + child.getKey() + " <-> " + child.getValue().toString());
+                        map.put(child.getKey(),child.getValue(int.class));
                     }
                 }
             }
@@ -154,6 +166,7 @@ public class MainActivity extends AppCompatActivity
 
         // Get all achievements
         AchievementsEventListener aEventListener = new AchievementsEventListener();
+        aEventListener.setAchievements( achievements );
         achievementReference.addValueEventListener(aEventListener);
 
         // Set the contentview
@@ -193,7 +206,6 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         Log.d("MainActivity","onDestroy()");
         super.onDestroy();
-        // TODO: DO NOT FINISH HERE :O
     }
 
     private void loadSpinner() {
@@ -244,6 +256,7 @@ public class MainActivity extends AppCompatActivity
         bundle.putParcelable(Constants.SWOOSH_USER, swooshUser);
         bundle.putString(Constants.SWOOSH_USER_UID,swooshUser.getuID());
         bundle.putInt(Constants.SWOOSH_USER_XP,swooshUser.getXp());
+        bundle.putSerializable(Constants.DB_ACHIEVEMENTS, achievements);
         currentFragment.setArguments(bundle);
 
         // Insert the fragment by replacing any existing fragment
